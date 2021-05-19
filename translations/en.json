@@ -1,0 +1,13 @@
+{
+	"happy": "Hi %person. Nice to see that you are so happy today!",
+	"angry": "Hi %person. Please don't be angry...",
+	"disgust": "Hi %person. Come on you are not THAT ugly",
+	"fear": "Hi %person. What are you afraid of?",
+	"sad": "Hi %person. Don't be sad! Everything is gonna be alright",
+	"surprise": "Hi %person. You seem to be surprised",
+	"neutral": "Hi %person. I wish you a happy day!",
+	"knownlogin": "Hello %person!",
+	"unknownlogin": "Hello %person, nice to meet you!",
+	"title": "Facial-Recognition",
+	"stranger": "stranger"
+}

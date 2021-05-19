@@ -1,0 +1,40 @@
+{
+	"name": "mmm-minerva",
+	"version": "1.0.0",
+	"description": "Facial Expression Recognition",
+	"main": "MMM-Minerva.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/cedricaebi/MMM-Minerva.git"
+	},
+	"keywords": [
+		"FER",
+		"magic",
+		"mirror",
+		"facial",
+		"expression",
+		"recognition"
+	],
+	"author": "Cedric Aebi",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/cedricaebi/MMM-Minerva/issues"
+	},
+	"homepage": "https://github.com/cedricaebi/MMM-Minerva#readme",
+	"dependencies": {
+		"python-shell": "^1.0.7",
+		"signal-exit": "^3.0.2"
+	},
+	"devDependencies": {
+		"eslint": "^6.8.0",
+		"eslint-config-standard": "^14.1.1",
+		"eslint-plugin-import": "^2.20.1",
+		"eslint-plugin-node": "^11.0.0",
+		"eslint-plugin-promise": "^4.2.1",
+		"eslint-plugin-standard": "^4.0.1",
+		"prettier": "2.2.1"
+	}
+}

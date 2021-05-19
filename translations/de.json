@@ -1,0 +1,13 @@
+{
+	"happy": "Hallo %person. Schön das du heute so glücklich bist!",
+	"angry": "Hallo %person. Sei doch nicht so wütend...",
+	"disgust": "Hallo %person. So hässlich bist du nun auch wieder nicht",
+	"fear": "Hallo %person. Was hat dich so erschreckt?",
+	"sad": "Hallo %person. Nicht traurig sein! Alles wird besser",
+	"surprise": "Hallo %person. Du scheinst erstaunt zu sein",
+	"neutral": "Hallo %person. Ich wünsche dir einen schönen Tag!",
+	"knownlogin": "Hallo %person!",
+	"unknownlogin": "Hallo %person, schön dich zu sehen!",
+	"title": "Gesichtserkennung",
+	"stranger": "Fremder"
+}
