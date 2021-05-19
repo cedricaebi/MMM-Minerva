@@ -17,7 +17,6 @@ import os
 import numpy as np
 from tensorflow import keras
 from keras_preprocessing.image import img_to_array
-from google_drive_downloader import GoogleDriveDownloader as gdd
 
 
 # To properly pass JSON.stringify()ed bool command line parameters, e.g. "--extendDataset"
