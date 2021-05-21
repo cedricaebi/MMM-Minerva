@@ -10,6 +10,13 @@ const { PythonShell } = require('python-shell')
 const onExit = require('signal-exit')
 let pythonStarted = false
 const Log = require('../../js/logger')
+const io = require('socket.io-client')
+
+const URL = 'http://localhost:5000'
+const socket = io.io(URL, { autoConnect: true })
+
+let previousEmotion = 'neutral'
+let errorShown = false
 
 module.exports = NodeHelper.create({
 	pyshell: null,
@@ -33,8 +40,7 @@ module.exports = NodeHelper.create({
 				'--output=' + this.config.output,
 				'--extendDataset=' + extendedDataset,
 				'--dataset=' + this.config.dataset,
-				'--tolerance=' + this.config.tolerance,
-				'--model=' + this.config.model
+				'--tolerance=' + this.config.tolerance
 			]
 		}
 
@@ -44,6 +50,47 @@ module.exports = NodeHelper.create({
 
 		// Start face reco script
 		self.pyshell = new PythonShell('modules/' + this.name + '/tools/facerecognition.py', options)
+
+		//Check if server is reachable
+		socket.on('connect_error', () => {
+			if (errorShown === false) {
+				self.sendSocketNotification('ERROR', {
+					action: 'error',
+					message: 'serverNotReachable'
+				})
+				errorShown = true
+			}
+		})
+
+		//Define some socket listeners
+		socket.on('connect', () => {
+			console.log('[INFO] Socket connected with id: ' + socket.id)
+			errorShown = false
+
+			self.sendSocketNotification('ERROR', {
+				action: 'error',
+				message: 'serverReachable'
+			})
+		})
+
+		socket.on('disconnect', () => {
+			previousEmotion = 'neutral'
+
+			self.sendSocketNotification('EMOTION', {
+				action: 'emotion',
+				emotion: previousEmotion
+			})
+		})
+
+		socket.on('new_emotion', emotion => {
+			if (previousEmotion !== emotion) {
+				previousEmotion = emotion
+				self.sendSocketNotification('EMOTION', {
+					action: 'emotion',
+					emotion: emotion
+				})
+			}
+		})
 
 		// check if a message of the python script is comming in
 		self.pyshell.on('message', function (message) {
@@ -70,13 +117,8 @@ module.exports = NodeHelper.create({
 				})
 			}
 
-			// Somebody has changed his emotion, send it back to the Magic Mirror Module
-			if (message.hasOwnProperty('emotion')) {
-				console.log('[' + self.name + '] ' + 'New emotion ' + message.emotion.person.emotion)
-				self.sendSocketNotification('EMOTION', {
-					action: 'emotion',
-					emotion: message.emotion.person.emotion
-				})
+			if (message.hasOwnProperty('prediction')) {
+				socket.emit('predict', { pixels: message.prediction.pixelArray })
 			}
 		})
 

@@ -21,8 +21,6 @@ Module.register('MMM-Minerva', {
 		cascade: 'modules/MMM-Minerva/tools/haarcascade_frontalface_default.xml',
 		// pre encoded pickle with the faces
 		encodings: 'modules/MMM-Minerva/tools/encodings.pickle',
-		//pre trained model for FER
-		model: 'modules/MMM-Minerva/tools/models/VGG16-AUX-BEST-70.2.h5',
 		// You wanna use pi camera or usb / builtin (1 = raspi camera, 0 = other camera)
 		usePiCamera: 1,
 		// if you don't use the pi camera, which stream do you want to use
@@ -433,6 +431,13 @@ Module.register('MMM-Minerva', {
 			this.emotion = payload.emotion
 			this.newEmotion = true
 			//this.updateDom(this.config.fadeSpeed)
+		}
+		if (payload.action === 'error') {
+			this.sendNotification('SHOW_ALERT', {
+				type: 'notification',
+				message: this.translate(payload.message),
+				title: this.translate('errorTitle')
+			})
 		}
 	},
 

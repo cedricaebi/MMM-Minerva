@@ -15,8 +15,8 @@ import sys
 import signal
 import os
 import numpy as np
-from tensorflow import keras
 from keras_preprocessing.image import img_to_array
+from numpyencoder import NumpyEncoder
 
 
 # To properly pass JSON.stringify()ed bool command line parameters, e.g. "--extendDataset"
@@ -68,8 +68,6 @@ ap.add_argument("-c", "--cascade", type=str, required=False, default="haarcascad
                 help="path to where the face cascade resides")
 ap.add_argument("-e", "--encodings", type=str, required=False, default="encodings.pickle",
                 help="path to serialized db of facial encodings")
-ap.add_argument("-md", "--model", type=str, required=False, default="./models/VGG16-AUX-BEST-70.2.h5",
-                help="Path to the Model File. (Keras .h5 file)")
 ap.add_argument("-p", "--usePiCamera", type=int, required=False, default=1,
                 help="Is using picamera or builtin/usb cam")
 ap.add_argument("-s", "--source", type=int, required=False, default=0,
@@ -92,15 +90,11 @@ ap.add_argument("-t", "--tolerance", type=float, required=False, default=0.6,
                 help="How much distance between faces to consider it a match. Lower is more strict.")
 args = vars(ap.parse_args())
 
-if not os.path.exists(args["model"]):
-    sys.exit("could not find FER model")
-
 # load the known faces and embeddings along with OpenCV's Haar
 # cascade for face detection
 printjson("status", "loading encodings + face detector...")
 data = pickle.loads(open(args["encodings"], "rb").read())
 detector = cv2.CascadeClassifier(args["cascade"])
-model = keras.models.load_model(args["model"])
 
 # initialize the video stream and allow the camera sensor to warm up
 printjson("status", "starting video stream...")
@@ -113,7 +107,6 @@ time.sleep(2.0)
 
 # variable for prev names
 prevNames = []
-emotion = "neutral"
 
 # create unknown path if needed
 if args["extendDataset"] is True:
@@ -161,9 +154,7 @@ while True:
 
     # compute the facial embeddings for each face bounding box
     encodings = face_recognition.face_encodings(rgb, boxes)
-
     names = []
-    persons = []
     minDistance = 0.0
 
     # loop over the facial embeddings
@@ -177,24 +168,15 @@ while True:
         # save the name if the distance is below the tolerance
         if minDistance < tolerance:
             idx = np.where(distances == minDistance)[0][0]
-            person = {
-                "name": data["names"][idx],
-                "emotion": emotion
-            }
-            # name = data["names"][idx]
+            name = data["names"][idx]
         else:
-            person = {
-                "name": "unknown",
-                "emotion": emotion
-            }
-            # name = "unknown"
+            name = "unknown"
 
         # update the list of names
-        names.append(person["name"])
-        persons.append(person)
+        names.append(name)
 
     # loop over the recognized faces
-    for ((top, right, bottom, left), person) in zip(boxes, persons):
+    for ((top, right, bottom, left), name) in zip(boxes, names):
         # draw the predicted face name on the image
 
         # Preprocessing for our model
@@ -203,21 +185,16 @@ while True:
         roi = img_to_array(roi)
         roi = np.expand_dims(roi, axis=0)
 
-        predictions = model.predict(roi)
-        classes = np.argmax(predictions, axis=1)
-        em = getEmotion(classes[0])
-        if emotion != em:
-            emotion = em
-            person["emotion"] = emotion
-            printjson("emotion", {
-                "person": person
-            })
+        # Send to server
+        printjson("prediction", {
+            "pixelArray": json.dumps(roi, cls=NumpyEncoder)
+        })
 
         cv2.rectangle(frame, (left, top), (right, bottom),
                       (0, 255, 0), 2)
 
         y = top - 15 if top - 15 > 15 else top + 15
-        txt = person["name"] + " (" + "{:.2f}".format(minDistance) + ")" + person["emotion"]
+        txt = name + " (" + "{:.2f}".format(minDistance) + ")"
         cv2.putText(frame, txt, (left, y), cv2.FONT_HERSHEY_SIMPLEX,
                     0.75, (0, 255, 0), 2)
 

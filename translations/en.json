@@ -9,5 +9,7 @@
 	"knownlogin": "Hello %person!",
 	"unknownlogin": "Hello %person, nice to meet you!",
 	"title": "Facial-Recognition",
-	"stranger": "stranger"
+	"stranger": "stranger",
+	"serverNotReachable": "Der FER-Server is not reachable!",
+	"errorTitle": "Error"
 }
